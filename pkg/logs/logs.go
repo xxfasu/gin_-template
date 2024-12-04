@@ -13,6 +13,8 @@ import (
 
 const ctxLoggerKey = "zapLogger"
 
+var Log *Logger
+
 type Logger struct {
 	*zap.Logger
 }
@@ -22,7 +24,7 @@ func NewLog(conf *viper.Viper) *Logger {
 	lp := conf.GetString("logs.log_file_name")
 	lv := conf.GetString("logs.log_level")
 	var level zapcore.Level
-	//debug<info<warn<error<fatal<panic
+	// debug<info<warn<error<fatal<panic
 	switch lv {
 	case "debug":
 		level = zap.DebugLevel
@@ -80,13 +82,16 @@ func NewLog(conf *viper.Viper) *Logger {
 		level,
 	)
 	if conf.GetString("env") != "prod" {
-		return &Logger{zap.New(core, zap.Development(), zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}
+		Log = &Logger{zap.New(core, zap.Development(), zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}
+	} else {
+		Log = &Logger{zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}
+
 	}
-	return &Logger{zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}
+	return Log
 }
 
 func timeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	//enc.AppendString(t.Format("2006-01-02 15:04:05"))
+	// enc.AppendString(t.Format("2006-01-02 15:04:05"))
 	enc.AppendString(t.Format("2006-01-02 15:04:05.000000000"))
 }
 

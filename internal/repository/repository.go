@@ -2,76 +2,62 @@ package repository
 
 import (
 	"context"
+	"gin_template/internal/repository/gen"
+	"gin_template/internal/repository/user_repository"
 	"gin_template/pkg/logs"
+	"gin_template/pkg/safe"
 	"gin_template/pkg/zapgorm2"
 	"github.com/google/wire"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-
+	"sync"
 	"time"
 )
 
 var ProviderSet = wire.NewSet(
 	NewDB,
-	NewRepository,
 	NewTransaction,
-	NewUserRepository,
+	user_repository.NewUserRepository,
 )
 
-const ctxTxKey = "TxKey"
-
-type Repository struct {
-	db *gorm.DB
-	//rdb    *redis.Client
-	logger *logs.Logger
+type transaction struct {
+	DB *gorm.DB
+	// rdb    *redis.Client
 }
 
-func NewRepository(
-	logger *logs.Logger,
-	db *gorm.DB,
-	// rdb *redis.Client,
-) *Repository {
-	return &Repository{
-		db: db,
-		//rdb:    rdb,
-		logger: logger,
+func NewTransaction(
+	DB *gorm.DB,
+) Transaction {
+	return &transaction{
+		DB: DB,
 	}
 }
 
 type Transaction interface {
-	Transaction(ctx context.Context, fn func(ctx context.Context) error) error
+	Transaction(ctx context.Context, fn func(query *gen.Query) error) error
 }
 
-func NewTransaction(r *Repository) Transaction {
-	return r
-}
-
-// DB return tx
-// If you need to create a Transaction, you must call DB(ctx) and Transaction(ctx,fn)
-func (r *Repository) DB(ctx context.Context) *gorm.DB {
-	v := ctx.Value(ctxTxKey)
-	if v != nil {
-		if tx, ok := v.(*gorm.DB); ok {
-			return tx
-		}
-	}
-	return r.db.WithContext(ctx)
-}
-
-func (r *Repository) Transaction(ctx context.Context, fn func(ctx context.Context) error) error {
-	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		ctx = context.WithValue(ctx, ctxTxKey, tx)
-		var err error
-		go func() {
-			err = fn(ctx)
-		}()
+func (r *transaction) Transaction(ctx context.Context, fn func(query *gen.Query) error) error {
+	return r.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var flag error
+		var wg sync.WaitGroup
+		done := make(chan struct{})
+		wg.Add(1)
+		safe.Go(func() {
+			defer wg.Done()
+			query := gen.Use(tx)
+			flag = fn(query)
+		})
+		safe.Go(func() {
+			defer close(done)
+			wg.Wait()
+		})
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(time.Second * 10):
-			return err
+		case <-done:
+			return flag
 		}
-
 	})
 }
 

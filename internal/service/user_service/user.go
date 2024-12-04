@@ -1,35 +1,31 @@
-package service
+package user_service
 
 import (
 	"context"
 	"gin_template/internal/model"
 	"gin_template/internal/model/request"
 	"gin_template/internal/repository"
+	"gin_template/internal/repository/user_repository"
 	"gin_template/pkg/logs"
 
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
-type UserService interface {
-	Register(ctx context.Context, req *request.Register) error
-	Login(ctx context.Context, req *request.Login) (string, error)
-}
-
 func NewUserService(
 	logger *logs.Logger,
-	userRepo repository.UserRepository,
-	tx repository.Transaction,
+	tm repository.Transaction,
+	userRepo user_repository.UserRepository,
 ) UserService {
 	return &userService{
 		userRepo: userRepo,
 		logger:   logger,
-		tx:       tx,
+		tx:       tm,
 	}
 }
 
 type userService struct {
-	userRepo repository.UserRepository
+	userRepo user_repository.UserRepository
 	logger   *logs.Logger
 	tx       repository.Transaction
 }

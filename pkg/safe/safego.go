@@ -8,7 +8,7 @@ import (
 )
 
 // Go 函数用于在新的 goroutine 中执行传入的函数 fn，并捕获可能发生的 panic。
-func Go(logger *logs.Logger, fn func()) {
+func Go(fn func()) {
 	go func() {
 		// 使用 defer 确保在函数退出前执行恢复逻辑
 		defer func() {
@@ -17,7 +17,7 @@ func Go(logger *logs.Logger, fn func()) {
 				timestamp := time.Now().Format("2006/01/02 - 15:04:05")
 
 				// 记录错误日志，包含时间戳和 panic 信息
-				logger.Error(fmt.Sprintf("[safego] %s panic recovered: %v", timestamp, rv),
+				logs.Log.Error(fmt.Sprintf("[safego] %s panic recovered: %v", timestamp, rv),
 					zap.Stack("stack")) // 添加堆栈信息
 			}
 		}()

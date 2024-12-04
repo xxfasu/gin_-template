@@ -1,9 +1,9 @@
-package handler
+package user_handler
 
 import (
 	"gin_template/internal/model/request"
 	"gin_template/internal/model/response"
-	"gin_template/internal/service"
+	"gin_template/internal/service/user_service"
 	"gin_template/pkg/logs"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -12,10 +12,10 @@ import (
 
 type UserHandler struct {
 	logger      *logs.Logger
-	userService service.UserService
+	userService user_service.UserService
 }
 
-func NewUserHandler(logger *logs.Logger, userService service.UserService) *UserHandler {
+func NewUserHandler(logger *logs.Logger, userService user_service.UserService) *UserHandler {
 	return &UserHandler{
 		logger:      logger,
 		userService: userService,

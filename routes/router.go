@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"gin_template/internal/handler"
+	"gin_template/internal/handler/v1/user_handler"
 	"gin_template/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
@@ -11,7 +11,7 @@ import (
 var ProviderSet = wire.NewSet(NewRouter)
 
 func NewRouter(
-	userHandler *handler.UserHandler,
+	userHandler *user_handler.UserHandler,
 	recoveryM *middleware.Recovery,
 	corsM *middleware.Cors,
 	logM *middleware.LogM,

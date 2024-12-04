@@ -4,7 +4,7 @@
 package main
 
 import (
-	"gin_template/internal/handler"
+	"gin_template/internal/handler/v1"
 	"gin_template/internal/middleware"
 	"gin_template/internal/repository"
 	"gin_template/internal/service"
@@ -19,7 +19,7 @@ func newWire(*logs.Logger) (*gin.Engine, func(), error) {
 		middleware.ProviderSet,
 		repository.ProviderSet,
 		service.ProviderSet,
-		handler.ProviderSet,
+		v1.ProviderSet,
 		routes.ProviderSet,
 	))
 }
