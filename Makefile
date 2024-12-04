@@ -1,3 +1,3 @@
 .PHONY: wire
 wire:
-	wire ./cmd
+	wire ./cmd/main

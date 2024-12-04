@@ -24,6 +24,11 @@ func (r *userRepository) Create(ctx context.Context, user *model.User) error {
 	return err
 }
 
+func (r *userRepository) CreateTx(ctx context.Context, query *gen.Query, user *model.User) error {
+	err := query.User.WithContext(ctx).Create(user)
+	return err
+}
+
 func (r *userRepository) Update(ctx context.Context, user *model.User) error {
 	err := gen.User.WithContext(ctx).Save(user)
 	return err

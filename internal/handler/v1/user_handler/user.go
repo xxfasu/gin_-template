@@ -22,16 +22,6 @@ func NewUserHandler(logger *logs.Logger, userService user_service.UserService) *
 	}
 }
 
-// Register godoc
-// @Summary 用户注册
-// @Schemes
-// @Description 目前只支持邮箱登录
-// @Tags 用户模块
-// @Accept json
-// @Produce json
-// @Param request body response.Register true "params"
-// @Success 200 {object} response.Response
-// @Router /register [post]
 func (h *UserHandler) Register(ctx *gin.Context) {
 	req := new(request.Register)
 	if err := ctx.ShouldBindJSON(req); err != nil {
@@ -48,16 +38,6 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 	response.HandleSuccess(ctx, nil)
 }
 
-// Login godoc
-// @Summary 账号登录
-// @Schemes
-// @Description
-// @Tags 用户模块
-// @Accept json
-// @Produce json
-// @Param request body response.Login true "params"
-// @Success 200 {object} response.LoginResponse
-// @Router /login [post]
 func (h *UserHandler) Login(ctx *gin.Context) {
 	var req request.Login
 	if err := ctx.ShouldBindJSON(&req); err != nil {

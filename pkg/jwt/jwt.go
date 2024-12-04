@@ -13,13 +13,17 @@ type JWT struct {
 }
 
 type MyCustomClaims struct {
-	UserId string
+	UserID string
 	jwt.RegisteredClaims
 }
 
-func (j *JWT) GenToken(userId string, expiresAt time.Time) (string, error) {
+func NewJwt() *JWT {
+	return &JWT{key: []byte("security.jwt.key")}
+}
+
+func (j *JWT) GenToken(userID string, expiresAt time.Time) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, MyCustomClaims{
-		UserId: userId,
+		UserID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

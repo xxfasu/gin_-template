@@ -8,11 +8,23 @@ import (
 	"net/http"
 )
 
-func StrictAuth(j *jwt.JWT, logger *logs.Logger) gin.HandlerFunc {
+type AuthM struct {
+	logger *logs.Logger
+	j      *jwt.JWT
+}
+
+func NewAuthM(logger *logs.Logger, j *jwt.JWT) *AuthM {
+	return &AuthM{
+		logger: logger,
+		j:      j,
+	}
+}
+
+func (m *AuthM) StrictAuth() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenString := ctx.Request.Header.Get("Authorization")
 		if tokenString == "" {
-			logger.WithContext(ctx).Warn("No token", zap.Any("data", map[string]interface{}{
+			m.logger.WithContext(ctx).Warn("No token", zap.Any("data", map[string]interface{}{
 				"url":    ctx.Request.URL,
 				"params": ctx.Params,
 			}))
@@ -21,9 +33,9 @@ func StrictAuth(j *jwt.JWT, logger *logs.Logger) gin.HandlerFunc {
 			return
 		}
 
-		claims, err := j.ParseToken(tokenString)
+		claims, err := m.j.ParseToken(tokenString)
 		if err != nil {
-			logger.WithContext(ctx).Error("token error", zap.Any("data", map[string]interface{}{
+			m.logger.WithContext(ctx).Error("token error", zap.Any("data", map[string]interface{}{
 				"url":    ctx.Request.URL,
 				"params": ctx.Params,
 			}), zap.Error(err))
@@ -33,12 +45,12 @@ func StrictAuth(j *jwt.JWT, logger *logs.Logger) gin.HandlerFunc {
 		}
 
 		ctx.Set("claims", claims)
-		recoveryLoggerFunc(ctx, logger)
+		recoveryLoggerFunc(ctx, m.logger)
 		ctx.Next()
 	}
 }
 
-func NoStrictAuth(j *jwt.JWT, logger *logs.Logger) gin.HandlerFunc {
+func (m *AuthM) NoStrictAuth() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenString := ctx.Request.Header.Get("Authorization")
 		if tokenString == "" {
@@ -52,20 +64,20 @@ func NoStrictAuth(j *jwt.JWT, logger *logs.Logger) gin.HandlerFunc {
 			return
 		}
 
-		claims, err := j.ParseToken(tokenString)
+		claims, err := m.j.ParseToken(tokenString)
 		if err != nil {
 			ctx.Next()
 			return
 		}
 
 		ctx.Set("claims", claims)
-		recoveryLoggerFunc(ctx, logger)
+		recoveryLoggerFunc(ctx, m.logger)
 		ctx.Next()
 	}
 }
 
 func recoveryLoggerFunc(ctx *gin.Context, logger *logs.Logger) {
 	if userInfo, ok := ctx.MustGet("claims").(*jwt.MyCustomClaims); ok {
-		logger.WithValue(ctx, zap.String("UserId", userInfo.UserId))
+		logger.WithValue(ctx, zap.String("UserId", userInfo.UserID))
 	}
 }

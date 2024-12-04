@@ -11,10 +11,11 @@ import (
 var ProviderSet = wire.NewSet(NewRouter)
 
 func NewRouter(
-	userHandler *user_handler.UserHandler,
 	recoveryM *middleware.Recovery,
 	corsM *middleware.Cors,
 	logM *middleware.LogM,
+	authM *middleware.AuthM,
+	userHandler *user_handler.UserHandler,
 ) *gin.Engine {
 	router := gin.New()
 	if true {
@@ -23,8 +24,15 @@ func NewRouter(
 		gin.SetMode(gin.ReleaseMode)
 	}
 	router.Use(recoveryM.Handler())
+	router.Use(corsM.Handler())
+	router.Use(logM.RequestLogMiddleware())
+	router.Use(logM.ResponseLogMiddleware())
+	router.Use(authM.NoStrictAuth())
+
 	publicGroup := router.Group("/api")
+	publicGroup.Use(authM.NoStrictAuth())
 	privateGroup := router.Group("/api")
+	privateGroup.Use(authM.StrictAuth())
 
 	{
 		// 健康监测

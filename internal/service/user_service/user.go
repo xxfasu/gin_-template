@@ -5,8 +5,11 @@ import (
 	"gin_template/internal/model"
 	"gin_template/internal/model/request"
 	"gin_template/internal/repository"
+	"gin_template/internal/repository/gen"
 	"gin_template/internal/repository/user_repository"
+	"gin_template/pkg/jwt"
 	"gin_template/pkg/logs"
+	"github.com/google/uuid"
 
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -16,11 +19,13 @@ func NewUserService(
 	logger *logs.Logger,
 	tm repository.Transaction,
 	userRepo user_repository.UserRepository,
+	jwt *jwt.JWT,
 ) UserService {
 	return &userService{
 		userRepo: userRepo,
 		logger:   logger,
 		tx:       tm,
+		jwt:      jwt,
 	}
 }
 
@@ -28,6 +33,7 @@ type userService struct {
 	userRepo user_repository.UserRepository
 	logger   *logs.Logger
 	tx       repository.Transaction
+	jwt      *jwt.JWT
 }
 
 func (s *userService) Register(ctx context.Context, req *request.Register) error {
@@ -45,16 +51,16 @@ func (s *userService) Register(ctx context.Context, req *request.Register) error
 		return err
 	}
 	// Generate user ID
-	userId := ""
+	userId := uuid.NewString()
 	user = &model.User{
-		UserId:   userId,
+		UserID:   userId,
 		Email:    req.Email,
 		Password: string(hashedPassword),
 	}
 	// Transaction demo
-	err = s.tx.Transaction(ctx, func(ctx context.Context) error {
+	err = s.tx.Transaction(ctx, func(query *gen.Query) error {
 		// Create a user
-		if err = s.userRepo.Create(ctx, user); err != nil {
+		if err = s.userRepo.CreateTx(ctx, query, user); err != nil {
 			return err
 		}
 		// TODO: other repo
@@ -73,7 +79,7 @@ func (s *userService) Login(ctx context.Context, req *request.Login) (string, er
 	if err != nil {
 		return "", err
 	}
-	token, err := s.jwt.GenToken(user.UserId, time.Now().Add(time.Hour*24*90))
+	token, err := s.jwt.GenToken(user.UserID, time.Now().Add(time.Hour*24*90))
 	if err != nil {
 		return "", err
 	}

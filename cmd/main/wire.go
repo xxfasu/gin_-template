@@ -8,6 +8,7 @@ import (
 	"gin_template/internal/middleware"
 	"gin_template/internal/repository"
 	"gin_template/internal/service"
+	"gin_template/pkg/jwt"
 	"gin_template/pkg/logs"
 	"gin_template/routes"
 	"github.com/gin-gonic/gin"
@@ -21,5 +22,6 @@ func newWire(*logs.Logger) (*gin.Engine, func(), error) {
 		service.ProviderSet,
 		v1.ProviderSet,
 		routes.ProviderSet,
+		jwt.NewJwt,
 	))
 }

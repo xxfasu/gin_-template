@@ -12,6 +12,7 @@ import (
 	"gin_template/internal/repository"
 	"gin_template/internal/repository/user_repository"
 	"gin_template/internal/service/user_service"
+	"gin_template/pkg/jwt"
 	"gin_template/pkg/logs"
 	"gin_template/routes"
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,8 @@ func newWire(logger *logs.Logger) (*gin.Engine, func(), error) {
 	db := repository.NewDB(logger)
 	transaction := repository.NewTransaction(db)
 	userRepository := user_repository.NewUserRepository(db)
-	userService := user_service.NewUserService(logger, transaction, userRepository)
+	jwtJWT := jwt.NewJwt()
+	userService := user_service.NewUserService(logger, transaction, userRepository, jwtJWT)
 	userHandler := user_handler.NewUserHandler(logger, userService)
 	recovery := middleware.NewRecoveryM(logger)
 	cors := middleware.NewCorsM()

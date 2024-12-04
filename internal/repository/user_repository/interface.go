@@ -3,6 +3,7 @@ package user_repository
 import (
 	"context"
 	"gin_template/internal/model"
+	"gin_template/internal/repository/gen"
 )
 
 type Reader interface {
@@ -12,6 +13,7 @@ type Reader interface {
 
 type Writer interface {
 	Create(ctx context.Context, user *model.User) error
+	CreateTx(ctx context.Context, query *gen.Query, user *model.User) error
 	Update(ctx context.Context, user *model.User) error
 }
 

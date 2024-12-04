@@ -30,7 +30,7 @@ func main() {
 		modelPkgPath = "../model"
 	case "darwin":
 		outPath = "./internal/repository/gen"
-		modelPkgPath = "./internal/model"
+		modelPkgPath = "../model"
 	}
 
 	// 指定生成代码的具体相对目录(相对当前文件)，默认为：./query
