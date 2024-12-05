@@ -4,10 +4,7 @@
 
 package model
 
-import (
-	"github.com/shopspring/decimal"
-	"gorm.io/plugin/soft_delete"
-)
+import "gorm.io/plugin/soft_delete"
 
 const TableNameUser = "users"
 
@@ -21,7 +18,6 @@ type User struct {
 	CreatedAt int64                 `gorm:"column:created_at;type:bigint" json:"created_at"`
 	UpdatedAt int64                 `gorm:"column:updated_at;type:bigint" json:"updated_at"`
 	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint" json:"-"`
-	Test      decimal.Decimal       `gorm:"column:test;type:decimal(10,0)" json:"test"`
 }
 
 // TableName User's table name

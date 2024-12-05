@@ -21,16 +21,21 @@ import (
 // Injectors from wire.go:
 
 func newWire(logger *logs.Logger) (*gin.Engine, func(), error) {
-	db := repository.NewDB(logger)
-	transaction := repository.NewTransaction(db)
-	userRepository := user_repository.NewUserRepository(db)
-	jwtJWT := jwt.NewJwt()
-	userService := user_service.NewUserService(logger, transaction, userRepository, jwtJWT)
-	userHandler := user_handler.NewUserHandler(logger, userService)
 	recovery := middleware.NewRecoveryM(logger)
 	cors := middleware.NewCorsM()
 	logM := middleware.NewLogM(logger)
-	engine := routes.NewRouter(userHandler, recovery, cors, logM)
+	jwtJWT := jwt.NewJwt()
+	authM := middleware.NewAuthM(logger, jwtJWT)
+	db, cleanup, err := repository.InitDB(logger)
+	if err != nil {
+		return nil, nil, err
+	}
+	transaction := repository.NewTransaction(db)
+	userRepository := user_repository.NewUserRepository(db)
+	userService := user_service.NewUserService(logger, transaction, userRepository, jwtJWT)
+	userHandler := user_handler.NewUserHandler(logger, userService)
+	engine := routes.NewRouter(recovery, cors, logM, authM, userHandler)
 	return engine, func() {
+		cleanup()
 	}, nil
 }

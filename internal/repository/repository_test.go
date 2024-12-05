@@ -56,7 +56,6 @@ func AA() []field.Expr {
 		gen.User.Nickname,
 		gen.User.Email,
 		gen.User.Password,
-		gen.User.Test,
 	}
 }
 

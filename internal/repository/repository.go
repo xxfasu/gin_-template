@@ -15,7 +15,7 @@ import (
 )
 
 var ProviderSet = wire.NewSet(
-	NewDB,
+	InitDB,
 	NewTransaction,
 	user_repository.NewUserRepository,
 )
@@ -61,7 +61,7 @@ func (r *transaction) Transaction(ctx context.Context, fn func(query *gen.Query)
 	})
 }
 
-func NewDB(l *logs.Logger) *gorm.DB {
+func InitDB(l *logs.Logger) (*gorm.DB, func(), error) {
 	var (
 		db  *gorm.DB
 		err error
@@ -77,16 +77,18 @@ func NewDB(l *logs.Logger) *gorm.DB {
 	})
 
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 	db = db.Debug()
 	// Connection Pool config
 	sqlDB, err := db.DB()
 	if err != nil {
-		panic(err)
+		return nil, nil, err
 	}
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
-	return db
+	return db, func() {
+		sqlDB.Close()
+	}, nil
 }

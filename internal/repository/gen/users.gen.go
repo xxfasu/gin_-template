@@ -6,7 +6,6 @@ package gen
 
 import (
 	"context"
-	"gin_template/internal/model"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -16,6 +15,8 @@ import (
 	"gorm.io/gen/field"
 
 	"gorm.io/plugin/dbresolver"
+
+	"gin_template/internal/model"
 )
 
 func newUser(db *gorm.DB, opts ...gen.DOOption) user {
@@ -28,7 +29,7 @@ func newUser(db *gorm.DB, opts ...gen.DOOption) user {
 	_user.ALL = field.NewAsterisk(tableName)
 	_user.ID = field.NewInt64(tableName, "id")
 	_user.UserID = field.NewString(tableName, "user_id")
-	_user.Nikename = field.NewString(tableName, "nikename")
+	_user.Nickname = field.NewString(tableName, "nickname")
 	_user.Password = field.NewString(tableName, "password")
 	_user.Email = field.NewString(tableName, "email")
 	_user.CreatedAt = field.NewInt64(tableName, "created_at")
@@ -46,7 +47,7 @@ type user struct {
 	ALL       field.Asterisk
 	ID        field.Int64
 	UserID    field.String
-	Nikename  field.String
+	Nickname  field.String
 	Password  field.String
 	Email     field.String
 	CreatedAt field.Int64
@@ -70,7 +71,7 @@ func (u *user) updateTableName(table string) *user {
 	u.ALL = field.NewAsterisk(table)
 	u.ID = field.NewInt64(table, "id")
 	u.UserID = field.NewString(table, "user_id")
-	u.Nikename = field.NewString(table, "nikename")
+	u.Nickname = field.NewString(table, "nickname")
 	u.Password = field.NewString(table, "password")
 	u.Email = field.NewString(table, "email")
 	u.CreatedAt = field.NewInt64(table, "created_at")
@@ -103,7 +104,7 @@ func (u *user) fillFieldMap() {
 	u.fieldMap = make(map[string]field.Expr, 8)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["user_id"] = u.UserID
-	u.fieldMap["nikename"] = u.Nikename
+	u.fieldMap["nickname"] = u.Nickname
 	u.fieldMap["password"] = u.Password
 	u.fieldMap["email"] = u.Email
 	u.fieldMap["created_at"] = u.CreatedAt
