@@ -12,7 +12,7 @@ type Nacos struct {
 }
 
 // Env 总配置结构体
-type Env struct {
+type env struct {
 	Environment string `mapstructure:"environment"`
 	Nacos       Nacos  `mapstructure:"nacos"`
 }

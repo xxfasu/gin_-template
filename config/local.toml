@@ -1,5 +1,5 @@
 [system]
-port=8088
+port = ":8088"
 host="127.0.0.1"
 
 [mysql]
@@ -22,3 +22,12 @@ bucket=""
 region=""
 role_arn = ""
 domain = ""
+
+[log]
+log_level = "debug"
+encoding = "console"  # json or console
+log_file_name = "./storage/logs/server.log"
+max_backups = 30
+max_age = 7
+max_size = 1024
+compress = true

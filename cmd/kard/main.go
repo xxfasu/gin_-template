@@ -63,7 +63,7 @@ func main() {
 	prg.svc = s
 
 	// 设置日志
-	errs := make(chan error, 5)
+	errs := make(chan error)
 	logger, err := s.Logger(errs)
 	if err != nil {
 		log.Fatal(err)

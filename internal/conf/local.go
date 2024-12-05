@@ -10,7 +10,7 @@ import (
 func loadLocal() error {
 
 	// 设置默认值
-	viper.SetDefault("server.port", 8000)
+	viper.SetDefault("server.port", ":8000")
 	viper.SetDefault("server.host", "127.0.0.1")
 
 	// 设置配置文件的名称（不带扩展名）

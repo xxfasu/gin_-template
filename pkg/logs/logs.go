@@ -2,8 +2,8 @@ package logs
 
 import (
 	"context"
+	"gin_template/internal/conf"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -19,13 +19,10 @@ type Logger struct {
 	*zap.Logger
 }
 
-func NewLog(conf *viper.Viper) *Logger {
-	// logs address "out.logs" User-defined
-	lp := conf.GetString("logs.log_file_name")
-	lv := conf.GetString("logs.log_level")
+func InitLog() *Logger {
 	var level zapcore.Level
 	// debug<info<warn<error<fatal<panic
-	switch lv {
+	switch conf.Config.Log.LogLevel {
 	case "debug":
 		level = zap.DebugLevel
 	case "info":
@@ -38,15 +35,15 @@ func NewLog(conf *viper.Viper) *Logger {
 		level = zap.InfoLevel
 	}
 	hook := lumberjack.Logger{
-		Filename:   lp,                              // Log file path
-		MaxSize:    conf.GetInt("logs.max_size"),    // Maximum size unit for each logs file: M
-		MaxBackups: conf.GetInt("logs.max_backups"), // The maximum number of backups that can be saved for logs files
-		MaxAge:     conf.GetInt("logs.max_age"),     // Maximum number of days the file can be saved
-		Compress:   conf.GetBool("logs.compress"),   // Compression or not
+		Filename:   conf.Config.Log.LogFileName, // Log file path
+		MaxSize:    conf.Config.Log.MaxSize,     // Maximum size unit for each logs file: M
+		MaxBackups: conf.Config.Log.MaxBackups,  // The maximum number of backups that can be saved for logs files
+		MaxAge:     conf.Config.Log.MaxAge,      // Maximum number of days the file can be saved
+		Compress:   conf.Config.Log.Compress,    // Compression or not
 	}
 
 	var encoder zapcore.Encoder
-	if conf.GetString("logs.encoding") == "console" {
+	if conf.Config.Log.Encoding == "console" {
 		encoder = zapcore.NewConsoleEncoder(zapcore.EncoderConfig{
 			TimeKey:        "ts",
 			LevelKey:       "level",
@@ -81,7 +78,7 @@ func NewLog(conf *viper.Viper) *Logger {
 		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(&hook)), // Print to console and file
 		level,
 	)
-	if conf.GetString("env") != "prod" {
+	if conf.Env.Environment != "prod" {
 		Log = &Logger{zap.New(core, zap.Development(), zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}
 	} else {
 		Log = &Logger{zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}

@@ -11,7 +11,7 @@ import (
 
 // System 配置结构体
 type System struct {
-	Port int    `mapstructure:"port"`
+	Port string `mapstructure:"port"`
 	Host string `mapstructure:"host"`
 }
 
@@ -44,6 +44,16 @@ type AliyunOSS struct {
 	Domain    string `mapstructure:"domain"`
 }
 
+type Log struct {
+	LogLevel    string `mapstructure:"log_level"`
+	Encoding    string `mapstructure:"encoding"`
+	LogFileName string `mapstructure:"log_file_name"`
+	MaxBackups  int    `mapstructure:"max_backups"`
+	MaxAge      int    `mapstructure:"max_age"`
+	MaxSize     int    `mapstructure:"max_size"`
+	Compress    bool   `mapstructure:"compress"`
+}
+
 // Config 总配置结构体
 type config struct {
 	System    System    `mapstructure:"system"`
@@ -51,17 +61,18 @@ type config struct {
 	Redis     Redis     `mapstructure:"redis"`
 	OSS       OSS       `mapstructure:"oss"`
 	AliyunOSS AliyunOSS `mapstructure:"aliyun_oss"`
+	Log       Log       `mapstructure:"log"`
 }
 
 var Config *config
-var env *Env
+var Env *env
 
 func InitConfig() error {
 	err := loadEnv()
 	if err != nil {
 		return err
 	}
-	switch env.Environment {
+	switch Env.Environment {
 	case "local":
 		err = loadLocal()
 	case "prod":
@@ -91,13 +102,13 @@ func loadEnv() error {
 	}
 
 	// 将配置文件内容反序列化到 Config 结构体
-	if err := viper.Unmarshal(&env); err != nil {
+	if err := viper.Unmarshal(&Env); err != nil {
 		log.Fatalf("解析配置文件失败: %v", err)
 		return err
 	}
 
 	// 打印解析后的配置内容
-	fmt.Printf("Env配置: %+v\n", env.Environment)
-	fmt.Printf("Nacos配置: %+v\n", env.Nacos)
+	fmt.Printf("Env配置: %+v\n", Env.Environment)
+	fmt.Printf("Nacos配置: %+v\n", Env.Nacos)
 	return nil
 }
