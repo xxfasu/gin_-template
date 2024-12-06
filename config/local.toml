@@ -1,12 +1,12 @@
 [system]
-port = ":8088"
+port = ":7788"
 host="127.0.0.1"
 
 [mysql]
-source="root:password@tcp(127.0.0.1:3306)/template"
+source="root:password@tcp(127.0.0.1:3306)/template?charset=utf8mb4&parseTime=True&loc=Local"
 
 [redis]
-addr="127.0.0.1:6379"
+addr="192.168.0.26:6379"
 username=""
 password=""
 db=0
@@ -23,7 +23,13 @@ region=""
 role_arn = ""
 domain = ""
 
-[log]
+[qiniuyun_oss]
+access_key=""
+secret_key=""
+bucket=""
+zone=""
+
+[zap_log]
 log_level = "debug"
 encoding = "console"  # json or console
 log_file_name = "./storage/logs/server.log"

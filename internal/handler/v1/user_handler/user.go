@@ -1,13 +1,12 @@
 package user_handler
 
 import (
-	"gin_template/internal/model/request"
-	"gin_template/internal/model/response"
+	"gin_template/internal/data/service_data"
 	"gin_template/internal/service/user_service"
+	"gin_template/internal/validation"
 	"gin_template/pkg/logs"
+	"gin_template/pkg/utils"
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
-	"net/http"
 )
 
 type UserHandler struct {
@@ -23,34 +22,65 @@ func NewUserHandler(logger *logs.Logger, userService user_service.UserService) *
 }
 
 func (h *UserHandler) Register(ctx *gin.Context) {
-	req := new(request.Register)
-	if err := ctx.ShouldBindJSON(req); err != nil {
-		response.HandleError(ctx, http.StatusBadRequest, err, nil)
+	req := new(validation.Register)
+	if err := utils.ParseJSON(ctx, &req); err != nil {
+		utils.ResError(ctx, h.logger, err)
 		return
 	}
 
 	if err := h.userService.Register(ctx, req); err != nil {
-		h.logger.WithContext(ctx).Error("userService.Register error", zap.Error(err))
-		response.HandleError(ctx, http.StatusInternalServerError, err, nil)
+		utils.ResError(ctx, h.logger, err)
 		return
 	}
+	utils.ResSuccess(ctx, nil)
 
-	response.HandleSuccess(ctx, nil)
 }
 
 func (h *UserHandler) Login(ctx *gin.Context) {
-	var req request.Login
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.HandleError(ctx, http.StatusBadRequest, err, nil)
+	var req validation.Login
+	if err := utils.ParseJSON(ctx, &req); err != nil {
+		utils.ResError(ctx, h.logger, err)
 		return
 	}
 
 	token, err := h.userService.Login(ctx, &req)
 	if err != nil {
-		response.HandleError(ctx, http.StatusUnauthorized, err, nil)
+		utils.ResError(ctx, h.logger, err)
 		return
 	}
-	response.HandleSuccess(ctx, response.Login{
+	utils.ResSuccess(ctx, service_data.LoginResp{
+		AccessToken: token,
+	})
+}
+
+func (h *UserHandler) FindUser(ctx *gin.Context) {
+	var req validation.FindUser
+	if err := utils.ParseJSON(ctx, &req); err != nil {
+		utils.ResError(ctx, h.logger, err)
+		return
+	}
+
+	user, err := h.userService.FindUser(ctx, &req)
+	if err != nil {
+		utils.ResError(ctx, h.logger, err)
+		return
+	}
+	utils.ResSuccess(ctx, user)
+}
+
+func (h *UserHandler) ModifyPassword(ctx *gin.Context) {
+	var req validation.Login
+	if err := utils.ParseJSON(ctx, &req); err != nil {
+		utils.ResError(ctx, h.logger, err)
+		return
+	}
+
+	token, err := h.userService.Login(ctx, &req)
+	if err != nil {
+		utils.ResError(ctx, h.logger, err)
+		return
+	}
+	utils.ResSuccess(ctx, service_data.LoginResp{
 		AccessToken: token,
 	})
 }

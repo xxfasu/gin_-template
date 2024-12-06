@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"gin_template/internal/conf"
 	"gin_template/internal/repository/gen"
 	"gin_template/internal/repository/user_repository"
 	"gin_template/pkg/logs"
@@ -68,11 +69,9 @@ func InitDB(l *logs.Logger) (*gorm.DB, func(), error) {
 	)
 
 	logger := zapgorm2.New(l.Logger)
-	dsn := ""
-
 	// GORM doc: https://gorm.io/docs/connecting_to_the_database.html
 
-	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+	db, err = gorm.Open(mysql.Open(conf.Config.Mysql.Source), &gorm.Config{
 		Logger: logger,
 	})
 
@@ -80,6 +79,7 @@ func InitDB(l *logs.Logger) (*gorm.DB, func(), error) {
 		return nil, nil, err
 	}
 	db = db.Debug()
+	gen.SetDefault(db)
 	// Connection Pool config
 	sqlDB, err := db.DB()
 	if err != nil {

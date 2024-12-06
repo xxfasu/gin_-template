@@ -2,14 +2,16 @@ package user_service
 
 import (
 	"context"
+	"gin_template/internal/data/service_data"
 	"gin_template/internal/model"
-	"gin_template/internal/model/request"
 	"gin_template/internal/repository"
 	"gin_template/internal/repository/gen"
 	"gin_template/internal/repository/user_repository"
+	"gin_template/internal/validation"
 	"gin_template/pkg/jwt"
 	"gin_template/pkg/logs"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -36,10 +38,11 @@ type userService struct {
 	jwt      *jwt.JWT
 }
 
-func (s *userService) Register(ctx context.Context, req *request.Register) error {
+func (s *userService) Register(ctx context.Context, req *validation.Register) error {
 	// check username
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
+		s.logger.Error("get user by email error:", zap.Error(err))
 		return err
 	}
 	if err == nil && user != nil {
@@ -69,7 +72,7 @@ func (s *userService) Register(ctx context.Context, req *request.Register) error
 	return err
 }
 
-func (s *userService) Login(ctx context.Context, req *request.Login) (string, error) {
+func (s *userService) Login(ctx context.Context, req *validation.Login) (string, error) {
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil || user == nil {
 		return "", err
@@ -85,4 +88,17 @@ func (s *userService) Login(ctx context.Context, req *request.Login) (string, er
 	}
 
 	return token, nil
+}
+
+func (s *userService) FindUser(ctx context.Context, req *validation.FindUser) (*model.User, error) {
+	user, err := s.userRepo.GetUserByCondition(ctx, service_data.Condition{
+		Email:    req.Email,
+		Nickname: req.Nickname,
+		UserID:   req.UserID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

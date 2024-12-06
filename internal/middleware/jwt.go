@@ -1,11 +1,12 @@
 package middleware
 
 import (
+	"errors"
 	"gin_template/pkg/jwt"
 	"gin_template/pkg/logs"
+	"gin_template/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 type AuthM struct {
@@ -28,7 +29,7 @@ func (m *AuthM) StrictAuth() gin.HandlerFunc {
 				"url":    ctx.Request.URL,
 				"params": ctx.Params,
 			}))
-			v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
+			utils.ResError(ctx, m.logger, errors.New("token is empty"))
 			ctx.Abort()
 			return
 		}
@@ -39,7 +40,7 @@ func (m *AuthM) StrictAuth() gin.HandlerFunc {
 				"url":    ctx.Request.URL,
 				"params": ctx.Params,
 			}), zap.Error(err))
-			v1.HandleError(ctx, http.StatusUnauthorized, v1.ErrUnauthorized, nil)
+			utils.ResError(ctx, m.logger, errors.New("token is valid"))
 			ctx.Abort()
 			return
 		}

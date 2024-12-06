@@ -21,15 +21,15 @@ func initNacos() {
 	once.Do(func() {
 		serverConfigs := []constant.ServerConfig{
 			{
-				IpAddr: env.Nacos.Addr,
-				Port:   env.Nacos.Port,
+				IpAddr: Env.Nacos.Addr,
+				Port:   Env.Nacos.Port,
 			},
 		}
 
 		clientConfig := constant.ClientConfig{
-			Username:            env.Nacos.Username,  // nacos授权的用户名
-			Password:            env.Nacos.Password,  // nacos授权的密码
-			NamespaceId:         env.Nacos.Namespace, // 如果需要支持多namespace，我们可以创建多个client,它们有不同的NamespaceId
+			Username:            Env.Nacos.Username,  // nacos授权的用户名
+			Password:            Env.Nacos.Password,  // nacos授权的密码
+			NamespaceId:         Env.Nacos.Namespace, // 如果需要支持多namespace，我们可以创建多个client,它们有不同的NamespaceId
 			TimeoutMs:           5000,                // 请求服务端的超时时间 5000毫秒
 			NotLoadCacheAtStart: true,                // 启动时不从缓存加载服务
 			LogDir:              "nacos_log",         // 日志目录
@@ -103,7 +103,7 @@ func loadNacos() error {
 
 	v := viper.New()
 
-	err := loadConfigFromNacos(env.Nacos.DataID, env.Nacos.Group, v)
+	err := loadConfigFromNacos(Env.Nacos.DataID, Env.Nacos.Group, v)
 	if err != nil {
 		log.Fatalf("Failed to load config from Nacos: %v", err)
 		return err
@@ -118,7 +118,7 @@ func loadNacos() error {
 	fmt.Printf("Initial config value %v:\n", Config)
 
 	// 监听配置变化
-	err = watchConfig(env.Nacos.DataID, env.Nacos.Group, v, func() {
+	err = watchConfig(Env.Nacos.DataID, Env.Nacos.Group, v, func() {
 		// 配置变化后的回调逻辑
 		updatedValue := v.GetString("your.config.key")
 		fmt.Println("Updated config value:", updatedValue)

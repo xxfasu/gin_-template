@@ -9,7 +9,8 @@ func userRouter(publicRouter *gin.RouterGroup, privateRouter *gin.RouterGroup, u
 	publicRouter = publicRouter.Group("/user")
 	privateRouter = privateRouter.Group("/user")
 	{
-		publicRouter.POST("/user/register", userHandler.Register)
-		publicRouter.POST("/user/login", userHandler.Login)
+		publicRouter.POST("/register", userHandler.Register)
+		publicRouter.POST("/login", userHandler.Login)
+		publicRouter.POST("/find", userHandler.FindUser)
 	}
 }

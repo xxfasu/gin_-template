@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gin_template/internal/repository/user_repository"
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
 	"gorm.io/gorm"
@@ -85,11 +86,11 @@ func main() {
 	softDeleteField := gen.FieldType("deleted_at", "soft_delete.DeletedAt")
 	// 模型自定义选项组
 	fieldOpts := []gen.ModelOpt{jsonField, softDeleteField}
-	// 从连接的数据库为所有表生成Model结构体和CRUD代码
-	g.ApplyBasic(g.GenerateAllTable(fieldOpts...)...)
+
+	g.ApplyInterface(func() {}, g.GenerateAllTable(fieldOpts...)...)
+	g.ApplyInterface(func(user_repository.Querier) {}, g.GenerateModel("users", fieldOpts...))
 	g.WithImportPkgPath("github.com/shopspring/decimal")
 
 	// 执行并生成代码
 	g.Execute()
-
 }

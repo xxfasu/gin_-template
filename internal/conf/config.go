@@ -4,37 +4,36 @@ package conf
 
 import (
 	"fmt"
-	"log"
-
 	"github.com/spf13/viper"
+	"log"
 )
 
-// System 配置结构体
-type System struct {
+// system 配置结构体
+type system struct {
 	Port string `mapstructure:"port"`
 	Host string `mapstructure:"host"`
 }
 
-// Mysql 配置结构体
-type Mysql struct {
+// mysql 配置结构体
+type mysql struct {
 	Source string `mapstructure:"source"`
 }
 
-// Redis 配置结构体
-type Redis struct {
+// redis 配置结构体
+type redis struct {
 	Addr     string `mapstructure:"addr"`
 	Username string `mapstructure:"username"`
 	Password string `mapstructure:"password"`
 	DB       int    `mapstructure:"db"`
 }
 
-// OSS 配置结构体
-type OSS struct {
+// oss 配置结构体
+type oss struct {
 	Provider string `mapstructure:"provider"`
 }
 
-// AliyunOSS 配置结构体
-type AliyunOSS struct {
+// aliyunOSS 配置结构体
+type aliyunOSS struct {
 	Endpoint  string `mapstructure:"endpoint"`
 	KeyID     string `mapstructure:"key_id"`
 	KeySecret string `mapstructure:"key_secret"`
@@ -44,7 +43,15 @@ type AliyunOSS struct {
 	Domain    string `mapstructure:"domain"`
 }
 
-type Log struct {
+// qiniuyunOSS 配置结构体
+type qiniuyunOSS struct {
+	AccessKey string `mapstructure:"access_key"`
+	SecretKey string `mapstructure:"secret_key"`
+	Bucket    string `mapstructure:"bucket"`
+	Zone      string `mapstructure:"zone"`
+}
+
+type zapLog struct {
 	LogLevel    string `mapstructure:"log_level"`
 	Encoding    string `mapstructure:"encoding"`
 	LogFileName string `mapstructure:"log_file_name"`
@@ -56,12 +63,13 @@ type Log struct {
 
 // Config 总配置结构体
 type config struct {
-	System    System    `mapstructure:"system"`
-	Mysql     Mysql     `mapstructure:"mysql"`
-	Redis     Redis     `mapstructure:"redis"`
-	OSS       OSS       `mapstructure:"oss"`
-	AliyunOSS AliyunOSS `mapstructure:"aliyun_oss"`
-	Log       Log       `mapstructure:"log"`
+	System      system      `mapstructure:"system"`
+	Mysql       mysql       `mapstructure:"mysql"`
+	Redis       redis       `mapstructure:"redis"`
+	OSS         oss         `mapstructure:"oss"`
+	AliyunOSS   aliyunOSS   `mapstructure:"aliyun_oss"`
+	Log         zapLog      `mapstructure:"zap_log"`
+	QiniuyunOSS qiniuyunOSS `mapstructure:"qiniuyun_oss"`
 }
 
 var Config *config
