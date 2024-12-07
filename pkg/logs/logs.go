@@ -19,7 +19,7 @@ type Logger struct {
 	*zap.Logger
 }
 
-func InitLog() *Logger {
+func InitLog() {
 	var level zapcore.Level
 	// debug<info<warn<error<fatal<panic
 	switch conf.Config.Log.LogLevel {
@@ -84,7 +84,6 @@ func InitLog() *Logger {
 		Log = &Logger{zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}
 
 	}
-	return Log
 }
 
 func timeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {

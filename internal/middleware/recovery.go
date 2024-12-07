@@ -13,13 +13,10 @@ import (
 )
 
 type Recovery struct {
-	logger *logs.Logger
 }
 
-func NewRecoveryM(logger *logs.Logger) *Recovery {
-	return &Recovery{
-		logger: logger,
-	}
+func NewRecoveryM() *Recovery {
+	return &Recovery{}
 }
 
 func (m *Recovery) Handler() gin.HandlerFunc {
@@ -45,9 +42,9 @@ func (m *Recovery) Handler() gin.HandlerFunc {
 				}
 
 				// 记录错误日志，包含时间戳和相关字段
-				m.logger.WithContext(ctx).Error(fmt.Sprintf("[Recovery] %s panic recovered", time.Now().Format("2006/01/02 - 15:04:05")), fields...)
+				logs.Log.WithContext(ctx).Error(fmt.Sprintf("[Recovery] %s panic recovered", time.Now().Format("2006/01/02 - 15:04:05")), fields...)
 				// 返回内部服务器错误响应给客户端
-				utils.ResError(c, m.logger, errors.InternalServerError("", "Internal server error, please try again later"))
+				utils.ResError(c, errors.InternalServerError("", "Internal server error, please try again later"))
 			}
 		}()
 

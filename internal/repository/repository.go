@@ -62,13 +62,13 @@ func (r *transaction) Transaction(ctx context.Context, fn func(query *gen.Query)
 	})
 }
 
-func InitDB(l *logs.Logger) (*gorm.DB, func(), error) {
+func InitDB() (*gorm.DB, func(), error) {
 	var (
 		db  *gorm.DB
 		err error
 	)
 
-	logger := zapgorm2.New(l.Logger)
+	logger := zapgorm2.New(logs.Log.Logger)
 	// GORM doc: https://gorm.io/docs/connecting_to_the_database.html
 
 	db, err = gorm.Open(mysql.Open(conf.Config.Mysql.Source), &gorm.Config{

@@ -8,8 +8,10 @@ import (
 	"gin_template/internal/repository/gen"
 	"gin_template/internal/repository/user_repository"
 	"gin_template/internal/validation"
+	"gin_template/pkg/cache"
 	"gin_template/pkg/jwt"
 	"gin_template/pkg/logs"
+	"github.com/go-redsync/redsync/v4"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 
@@ -18,14 +20,14 @@ import (
 )
 
 func NewUserService(
-	logger *logs.Logger,
+	cache *cache.Cache,
+	rLock *redsync.Redsync,
 	tm repository.Transaction,
 	userRepo user_repository.UserRepository,
 	jwt *jwt.JWT,
 ) UserService {
 	return &userService{
 		userRepo: userRepo,
-		logger:   logger,
 		tx:       tm,
 		jwt:      jwt,
 	}
@@ -33,7 +35,6 @@ func NewUserService(
 
 type userService struct {
 	userRepo user_repository.UserRepository
-	logger   *logs.Logger
 	tx       repository.Transaction
 	jwt      *jwt.JWT
 }
@@ -42,7 +43,7 @@ func (s *userService) Register(ctx context.Context, req *validation.Register) er
 	// check username
 	user, err := s.userRepo.GetByEmail(ctx, req.Email)
 	if err != nil {
-		s.logger.Error("get user by email error:", zap.Error(err))
+		logs.Log.Error("get user by email error:", zap.Error(err))
 		return err
 	}
 	if err == nil && user != nil {

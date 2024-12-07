@@ -3,7 +3,6 @@ package main
 import (
 	"gin_template/internal/conf"
 	"gin_template/internal/redis"
-	"gin_template/pkg/cache"
 	"gin_template/pkg/logs"
 	"github.com/gin-gonic/gin"
 	"github.com/kardianos/service"
@@ -46,13 +45,13 @@ func (p *program) run() {
 	if err != nil {
 		panic(err)
 	}
-	err = redis.InitRedis()
+	client, err := redis.InitRedis()
 	if err != nil {
 		panic(err)
 	}
-	cache.InitLocalCache()
-	logger := logs.InitLog()
-	wire, fn, err := newWire(logger)
+	rLock := redis.InitRedSync(client)
+	logs.InitLog()
+	wire, fn, err := newWire(client, rLock)
 	p.clearFunc = fn
 	if err != nil {
 		panic(err)

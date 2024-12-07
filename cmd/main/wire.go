@@ -8,14 +8,16 @@ import (
 	"gin_template/internal/middleware"
 	"gin_template/internal/repository"
 	"gin_template/internal/service"
+	"gin_template/pkg/cache"
 	"gin_template/pkg/jwt"
-	"gin_template/pkg/logs"
 	"gin_template/routes"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redsync/redsync/v4"
 	"github.com/google/wire"
+	"github.com/redis/go-redis/v9"
 )
 
-func newWire(*logs.Logger) (*gin.Engine, func(), error) {
+func newWire(client *redis.Client, rLock *redsync.Redsync) (*gin.Engine, func(), error) {
 	panic(wire.Build(
 		middleware.ProviderSet,
 		repository.ProviderSet,
@@ -23,5 +25,6 @@ func newWire(*logs.Logger) (*gin.Engine, func(), error) {
 		v1.ProviderSet,
 		routes.ProviderSet,
 		jwt.NewJwt,
+		cache.InitLocalCache,
 	))
 }

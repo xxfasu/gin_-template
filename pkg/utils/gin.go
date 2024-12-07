@@ -135,7 +135,7 @@ func ResPage(c *gin.Context, v interface{}, pr *PaginationResult) {
 	})
 }
 
-func ResError(c *gin.Context, logger *logs.Logger, err error, status ...int) {
+func ResError(c *gin.Context, err error, status ...int) {
 	var ierr *errors.Error
 	if e, ok := errors.As(err); ok {
 		ierr = e
@@ -150,7 +150,7 @@ func ResError(c *gin.Context, logger *logs.Logger, err error, status ...int) {
 
 	if code >= 500 {
 		ctx := c.Request.Context()
-		logger.WithContext(ctx).Error("Internal server error", zap.Error(err))
+		logs.Log.WithContext(ctx).Error("Internal server error", zap.Error(err))
 		ierr.Detail = http.StatusText(http.StatusInternalServerError)
 	}
 
